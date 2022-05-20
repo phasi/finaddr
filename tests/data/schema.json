@@ -1,0 +1,49 @@
+{
+    "fields": [
+        {
+            "name": "building_id",
+            "type": "string",
+            "description": "Identifier for Finnish buildings"
+        },
+        {
+            "name": "region",
+            "type": "string",
+            "description": "Identification number for Finnish regions. See: https://dvv.fi/tilastot-ja-luettelot, file Maakunnat.xlsx"
+        },
+        {
+            "name": "municipality",
+            "type": "string",
+            "description": "Identification number for Finnish municipalities. See: http://tilastokeskus.fi/meta/luokitukset/kunta/001-2019/index.html"
+        },
+        {
+            "name": "street",
+            "type": "string",
+            "description": "Street name: an identifying name given to a street"
+        },
+        {
+            "name": "house_number",
+            "type": "string",
+            "description": "Unique number to each building in a street or area, with the intention of making it easier to locate a particular building"
+        },
+        {
+            "name": "postal_code",
+            "type": "string",
+            "description": "Series of digits included in a postal address for the purpose of sorting mail."
+        },
+        {
+            "name": "latitude_wgs84",
+            "type": "number",
+            "description": "Coordinate latitude in the WGS 84 standard. The World Geodetic System (WGS) is a standard for use in cartography, geodesy, and navigation including GPS."
+        },
+        {
+            "name": "longitude_wgs84",
+            "type": "number",
+            "description": "Coordinate longitude in the WGS 84 standard. The World Geodetic System (WGS) is a standard for use in cartography, geodesy, and navigation including GPS."
+        },
+        {
+            "name": "building_use",
+            "type": "integer",
+            "description": "Intended use of building. The identification codes with the corresponding letter codes from stat.fi are: 0 The intended use of building is lacking, 1 Residental building or business premises (A - H), and 2 Production building or other building (J - N). See: http://www.stat.fi/meta/luokitukset/rakennus/001-2018-07-12/index_en.html"
+        }
+    ]
+}
