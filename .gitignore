@@ -1,5 +1,5 @@
 .vscode/
 venv/
 .venv/
-src/finaddr/finaddr.egg-info/
+src/finaddr.egg-info/
 dist/
