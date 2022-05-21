@@ -26,7 +26,7 @@ rm -f VERSION
 
 publish() {
 
-package()
+package
 twine upload dist/*
 
 }
