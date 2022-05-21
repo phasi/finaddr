@@ -29,6 +29,8 @@ publish() {
 package
 twine upload dist/*
 
+rm -rf ./dist/
+
 }
 
 $@

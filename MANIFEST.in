@@ -1,4 +1,4 @@
-VERSION
-LICENSE
-README.md
-tests/data/*
+include VERSION
+include LICENSE
+include README.md
+include tests/data/*
