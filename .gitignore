@@ -5,3 +5,4 @@ src/finaddr.egg-info/
 dist/
 VERSION
 build/
+src/build
