@@ -10,5 +10,5 @@ setup(
     packages=find_packages("src"),
     package_dir={"": "src"},
     url="https://github.com/phasi/finaddr",
-    keywords="finnish address data client",
+    install_requires=["wheel==0.37.1"],
 )
