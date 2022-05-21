@@ -2,6 +2,8 @@ import typing
 from .config import Config
 import csv
 from .model import Building
+from .exceptions import BadSearchTerm
+
 
 
 class Parser:
@@ -26,7 +28,7 @@ class Parser:
             building_use=row[self.config.get_index("building_use")],
         )
 
-    def search(self, **search_params):
+    def search(self, **search_params) -> typing.List[Building]:
         results = []
         with open(file=self.config.data_path, newline="\n") as csvfile:
             reader = csv.reader(csvfile, delimiter=",")

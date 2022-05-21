@@ -1,6 +1,7 @@
 import typing
 import json
 from os import path
+from .exceptions import BadSearchTerm
 
 
 class Config:
@@ -16,4 +17,11 @@ class Config:
                 self.fields[field.get("name")] = i
 
     def get_index(self, field_name: str) -> int:
-        return self.fields[field_name]
+        try:
+            return self.fields[field_name]
+        except KeyError:
+            raise BadSearchTerm(
+                f"field name '{field_name}' does not exist in schema fields (Config.fields)"
+            )
+        except:
+            raise

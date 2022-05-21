@@ -11,15 +11,23 @@ git tag -a $NEW_VERSION -m "new version"
 
 }
 
-package() {
-
+version() {
 CUR_VERSION=$(git describe --tags --abbrev=0)
 
 echo $CUR_VERSION > VERSION
 
-FINADDR_BUILD_VERSION=$CUR_VERSION python3 setup.py sdist
+}
 
-rm -f VERSION
+clean() {
+    rm -f VERSION
+    rm -rf ./dist/
+}
+
+package() {
+
+version
+
+FINADDR_BUILD_VERSION=$CUR_VERSION python3 setup.py sdist
 
 }
 
@@ -28,8 +36,6 @@ publish() {
 
 package
 twine upload dist/*
-
-rm -rf ./dist/
 
 }
 

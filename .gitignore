@@ -4,3 +4,4 @@ venv/
 src/finaddr.egg-info/
 dist/
 VERSION
+build/
