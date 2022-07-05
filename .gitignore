@@ -6,3 +6,6 @@ dist/
 VERSION
 build/
 src/build
+indexed_data
+Finland_addresses*
+json_table_schema.json
