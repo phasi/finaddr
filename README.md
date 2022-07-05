@@ -20,18 +20,27 @@ pip install finaddr
 
 ```python
 import typing
-from finaddr.model import Building
-from finaddr.client import Client
-
-client = Client.with_remote_data(
-        data_url="http://address.com/data.csv",
-        json_table_schema_url="http://address.com/schema.json",
+from finaddr.finaddr import (
+    Config,
+    StreetNameAlphabeticalParser,
+    Client,
 )
 
-results: typing.List[Building] = client.search(street="Viulukuja")
+config = Config(
+    data_path="path/to/raw_data.csv",
+    indexed_data_folder_path="/path/to/indexed_data_folder",
+    json_table_schema_path="/path/to/schema.json",
+)
+
+# use should_index_data when setting things up. This will call the parser's
+# index_data() method. This is a long running operation so be mindful when and where to do it.
+# If data is already indexed by the selected parser then set should_index_data=False
+client = Client(config=config, parser=StreetNameAlphabeticalParser, should_index_data=True)
+
+results: typing.List[typing.Dict[str,str]] = client.search(street="Viulukuja", house_number="1")
 
 for r in results:
-    print(r.__dict__)
+    print(r)
 
 ```
 
@@ -43,15 +52,14 @@ If you have already downloaded the data by other means you can also pass the pat
 
 ```python
 import typing
-from finaddr.model import Building
-from finaddr.client import Client
+from finaddr.finaddr import Client, StreetNameAlphabeticalParser
 
-client = Client.from_env()
+client = Client.from_env(parser=StreetNameAlphabeticalParser, should_index_data=False)
 
-results: typing.List[Building] = client.search(street="Viulukuja")
+results: typing.List[typing.Dict[str,str]] = client.search(street="Viulukuja")
 
 for r in results:
-    print(r.__dict__)
+    print(r)
 
 ```
 
@@ -59,12 +67,10 @@ for r in results:
 
 ```bash
 $ export FINADDR_DATA_PATH="/path/to/data.csv"
+$ export FINADDR_INDEXED_DATA_FOLDER_PATH="/path/to/data_folder"
 $ export FINADDR_JSON_TABLE_SCHEMA_PATH="/path/to/schema.json"
 
 $ source /path/to/your/project/virtualenv/bin/activate
 
 (venv)$ python3 your_file.py
 ```
-
-
-You can also filter results by other key's. Checkout finaddr.model.Building for accepted keys.
