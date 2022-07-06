@@ -224,6 +224,10 @@ class StreetNameAlphabeticalParser(BaseParser):
             )
 
 
+def get_default_path_for(name: str) -> str:
+    return os.path.join(os.path.dirname(__file__), name)
+
+
 class Client:
     """Client for searching finnish building data."""
 
@@ -273,9 +277,40 @@ class Client:
             indexed_data_folder_path=os.getenv("FINADDR_INDEXED_DATA_FOLDER_PATH"),
             json_table_schema_path=os.getenv("FINADDR_JSON_TABLE_SCHEMA_PATH"),
         )
-        return cls(
-            config=config, parser=parser(config), should_index_data=should_index_data
+        return cls(config=config, parser=parser, should_index_data=should_index_data)
+
+    @classmethod
+    def with_data_from_uri(
+        cls,
+        data_uri: str,
+        json_table_schema_uri: str,
+        parser: typing.Type[BaseParser],
+        should_index_data: bool = True,
+    ):
+        import urllib.request
+
+        urllib.request.urlretrieve(
+            url=data_uri, filename=get_default_path_for("data.csv")
         )
+        urllib.request.urlretrieve(
+            url=json_table_schema_uri,
+            filename=get_default_path_for("schema.json"),
+        )
+        config = Config(
+            data_path=get_default_path_for("data.csv"),
+            indexed_data_folder_path=get_default_path_for("indexed_data"),
+            json_table_schema_path=get_default_path_for("schema.json"),
+        )
+        return cls(config=config, parser=parser, should_index_data=should_index_data)
+
+    @classmethod
+    def with_defaults(cls, parser: typing.Type[BaseParser]):
+        config = Config(
+            data_path=get_default_path_for("data.csv"),
+            indexed_data_folder_path=get_default_path_for("indexed_data"),
+            json_table_schema_path=get_default_path_for("schema.json"),
+        )
+        return cls(config=config, parser=parser, should_index_data=False)
 
     def search(self, **search_params) -> typing.List[typing.Dict[str, str]]:
         """Searches from data with the provided parser
@@ -286,18 +321,14 @@ class Client:
         return self._parser.search(**search_params)
 
 
-# if __name__ == "__main__":
-#     config = Config(
-#         # data_path="/Users/pasi/dev/finaddr/tests/data/testdata.csv",
-#         data_path="/Users/pasi/dev/finaddr/Finland_addresses_2022-05-12.csv",
-#         indexed_data_folder_path="/Users/pasi/dev/finaddr/indexed_data",
-#         json_table_schema_path="/Users/pasi/dev/finaddr/json_table_schema.json",
-#     )
+if __name__ == "__main__":
 
-#     client = Client(
-#         config=config, parser=StreetNameAlphabeticalParser, should_index_data=False
-#     )
-
-#     results = client.search(street="Nonexistenstreet", house_number="4")
-
-#     print(results)
+    # client = Client.with_data_from_uri(
+    #     data_uri="file:///Users/pasi/dev/finaddr/Finland_addresses_2022-05-12.csv",
+    #     json_table_schema_uri="file:///Users/pasi/dev/finaddr/json_table_schema.json",
+    #     parser=StreetNameAlphabeticalParser,
+    #     should_index_data=True,
+    # )
+    # client = Client.with_defaults(parser=StreetNameAlphabeticalParser)
+    # results = client.search(street="somestreet", house_number="4")
+    # print(results)
