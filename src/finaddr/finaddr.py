@@ -321,14 +321,14 @@ class Client:
         return self._parser.search(**search_params)
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    # client = Client.with_data_from_uri(
-    #     data_uri="file:///Users/pasi/dev/finaddr/Finland_addresses_2022-05-12.csv",
-    #     json_table_schema_uri="file:///Users/pasi/dev/finaddr/json_table_schema.json",
-    #     parser=StreetNameAlphabeticalParser,
-    #     should_index_data=True,
-    # )
-    # client = Client.with_defaults(parser=StreetNameAlphabeticalParser)
-    # results = client.search(street="somestreet", house_number="4")
-    # print(results)
+# client = Client.with_data_from_uri(
+#     data_uri="file:///Users/pasi/dev/finaddr/Finland_addresses_2022-05-12.csv",
+#     json_table_schema_uri="file:///Users/pasi/dev/finaddr/json_table_schema.json",
+#     parser=StreetNameAlphabeticalParser,
+#     should_index_data=True,
+# )
+# client = Client.with_defaults(parser=StreetNameAlphabeticalParser)
+# results = client.search(street="somestreet", house_number="4")
+# print(results)
