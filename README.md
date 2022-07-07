@@ -16,7 +16,7 @@ or even tell your client to download the files over HTTP(S) when loading the Cli
 pip install finaddr
 ```
 
-## Configure with remote data (download data files over HTTP)
+## Test/Use with local data
 
 ```python
 import typing
@@ -31,7 +31,7 @@ config = Config(
     indexed_data_folder_path="/path/to/indexed_data_folder",
     json_table_schema_path="/path/to/schema.json",
 )
-
+# Currently only StreetNameAlphabeticalParser can be used or you can write your own parser
 # use should_index_data when setting things up. This will call the parser's
 # index_data() method. This is a long running operation so be mindful when and where to do it.
 # If data is already indexed by the selected parser then set should_index_data=False
@@ -44,33 +44,117 @@ for r in results:
 
 ```
 
-## Configure client from environment
+## Use in Azure Functions with data downloaded from server
 
-If you have already downloaded the data by other means you can also pass the paths in environment variables
+This approach works with azure functions. A function app should normally save data elsewhere but this example makes it download the data and schema
+into the library folder itself.
 
-1. create your code:
 
+
+You should use this/similar code in a TimerTrigger (that downloads any possible updates to your schema and indexes the data)
+
+Timer - function.json
+```json
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "name": "mytimer",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "0 0 1 * * Sun",
+      "runOnStartup": true
+    }
+  ]
+}
+```
+Timer - Trigger
 ```python
-import typing
+
+import datetime
+import logging
+import azure.functions as func
 from finaddr.finaddr import Client, StreetNameAlphabeticalParser
 
-client = Client.from_env(parser=StreetNameAlphabeticalParser, should_index_data=False)
+def main(mytimer: func.TimerRequest) -> None:
+    utc_timestamp = (
+        datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
+    )
 
-results: typing.List[typing.Dict[str,str]] = client.search(street="Viulukuja")
+    logging.info("Trying to download and index address data (%s)", utc_timestamp)
 
-for r in results:
-    print(r)
+    client = Client.with_data_from_uri(
+        data_uri="https://yourdomain.com/Finland_addresses_2022-05-12.csv",
+        json_table_schema_uri="https://yourdomain.com/json_table_schema.json",
+        parser=StreetNameAlphabeticalParser,
+        should_index_data=True, # make sure above parser will index data
+    )
+
+    utc_timestamp = (
+        datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
+    )
+
+    logging.info("Data downloaded and indexed at %s", utc_timestamp)
 
 ```
 
-2. export variables, start virtual environment, and run your code
+HTTP Trigger - function.json
+```json
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "get"
+      ],
+      "route": "v1/find"
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "$return"
+    }
+  ]
+}
+```
 
-```bash
-$ export FINADDR_DATA_PATH="/path/to/data.csv"
-$ export FINADDR_INDEXED_DATA_FOLDER_PATH="/path/to/data_folder"
-$ export FINADDR_JSON_TABLE_SCHEMA_PATH="/path/to/schema.json"
+HTTP Trigger - function:
 
-$ source /path/to/your/project/virtualenv/bin/activate
+```python
+import logging
 
-(venv)$ python3 your_file.py
+import azure.functions as func
+from finaddr.finaddr import (
+    Client,
+    StreetNameAlphabeticalParser,
+    MissingSearchParam,
+)
+import os
+import json
+
+client = Client.with_defaults(parser=StreetNameAlphabeticalParser)
+
+
+def main(req: func.HttpRequest) -> func.HttpResponse:
+
+    logging.info("Python HTTP trigger function processed a request.")
+
+    try:
+        results = client.search(**req.params)
+
+        return func.HttpResponse(
+            json.dumps(results),
+            status_code=200,
+        )
+    except MissingSearchParam as e:
+        return func.HttpResponse(
+            json.dumps({"error": str(e)}),
+            status_code=400,
+        )
+
+
 ```
