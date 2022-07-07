@@ -3,6 +3,7 @@ import json
 import os
 import csv
 import re
+import requests
 
 DEFAULT_SCHEMA = {
     "fields": [
@@ -285,15 +286,13 @@ class Client:
         parser: typing.Type[BaseParser],
         should_index_data: bool = True,
     ):
-        import urllib.request
+        data = requests.get(data_uri, allow_redirects=True)
+        with open(get_default_path_for("data.csv"), mode="wb") as f:
+            f.write(data.content)
+        schema = requests.get(json_table_schema_uri, allow_redirects=True)
+        with open(get_default_path_for("schema.json"), mode="wb") as f:
+            f.write(schema.content)
 
-        urllib.request.urlretrieve(
-            url=data_uri, filename=get_default_path_for("data.csv")
-        )
-        urllib.request.urlretrieve(
-            url=json_table_schema_uri,
-            filename=get_default_path_for("schema.json"),
-        )
         config = Config(
             data_path=get_default_path_for("data.csv"),
             indexed_data_folder_path=get_default_path_for("indexed_data"),
@@ -322,8 +321,8 @@ class Client:
 # if __name__ == "__main__":
 
 # client = Client.with_data_from_uri(
-#     data_uri="file:///Users/pasi/dev/finaddr/Finland_addresses_2022-05-12.csv",
-#     json_table_schema_uri="file:///Users/pasi/dev/finaddr/json_table_schema.json",
+#     data_uri="https://yourstorage.blob.core.windows.net/public/Finland_addresses_2022-05-12.csv",
+#     json_table_schema_uri="https://yourstorage.blob.core.windows.net/public/json_table_schema.json",
 #     parser=StreetNameAlphabeticalParser,
 #     should_index_data=True,
 # )
