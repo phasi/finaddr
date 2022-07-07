@@ -189,7 +189,7 @@ class StreetNameAlphabeticalParser(BaseParser):
                 mode="w",
                 encoding="utf-8",
             ) as jsonfile:
-                jsonfile.write(json.dumps(results[x]))
+                json.dump(results[x], jsonfile, ensure_ascii=False)
 
     def index_data(self):
         self._index_data_alphabetically_by_street()
@@ -219,9 +219,7 @@ class StreetNameAlphabeticalParser(BaseParser):
             index_name = self._get_index_name_for(street)
             return self._search_from_index(index_name, **search_params)
         else:
-            raise MissingSearchParam(
-                "StreetNameAlphabeticalParser.search() requires 'street'"
-            )
+            raise MissingSearchParam("'street' is missing from parameters")
 
 
 def get_default_path_for(name: str) -> str:
